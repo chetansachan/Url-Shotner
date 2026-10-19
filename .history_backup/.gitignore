@@ -1,0 +1,11 @@
+.env
+.history_backup/
+.git_commit_msg.tmp
+node_modules/
+frontend/node_modules/
+dist/
+frontend/dist/
+urlshotner.exe
+backend/urlshotner.exe
+.commandcode/
+*.log
