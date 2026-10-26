@@ -34,7 +34,16 @@ func (h *Handler) Routes() http.Handler {
 	mux.HandleFunc("GET /r/{code}", h.redirect)
 	mux.HandleFunc("GET /api/urls/{code}", h.stats)
 	mux.HandleFunc("GET /healthz", h.health)
-	return mux
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS, PUT, DELETE")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+		if r.Method == http.MethodOptions {
+			w.WriteHeader(http.StatusNoContent)
+			return
+		}
+		mux.ServeHTTP(w, r)
+	})
 }
 
 func (h *Handler) shorten(w http.ResponseWriter, r *http.Request) {
