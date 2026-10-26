@@ -76,3 +76,16 @@ func (h *Handler) shorten(w http.ResponseWriter, r *http.Request) {
 		"short_url":  "http://" + r.Host + "/r/" + code,
 	})
 }
+
+func (h *Handler) redirect(w http.ResponseWriter, r *http.Request) {
+	target, err := h.svc.Resolve(r.Context(), r.PathValue("code"))
+	if err != nil {
+		if errors.Is(err, service.ErrNotFound) {
+			http.NotFound(w, r)
+			return
+		}
+		http.Error(w, "internal error", http.StatusInternalServerError)
+		return
+	}
+	http.Redirect(w, r, target, http.StatusFound)
+}
