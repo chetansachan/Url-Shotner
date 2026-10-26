@@ -70,7 +70,6 @@ func main() {
 		log.Printf("shutdown error: %v", err)
 	}
 
-	// final flush: short version of the graceful drain
 	flushCtx, flushCancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer flushCancel()
 	if err := flusher.FlushOnce(flushCtx); err != nil {
