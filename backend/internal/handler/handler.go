@@ -89,3 +89,17 @@ func (h *Handler) redirect(w http.ResponseWriter, r *http.Request) {
 	}
 	http.Redirect(w, r, target, http.StatusFound)
 }
+
+func (h *Handler) stats(w http.ResponseWriter, r *http.Request) {
+	row, err := h.svc.Stats(r.Context(), r.PathValue("code"))
+	if err != nil {
+		if errors.Is(err, store.ErrNotFound) {
+			http.NotFound(w, r)
+			return
+		}
+		http.Error(w, "internal error", http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(row)
+}
