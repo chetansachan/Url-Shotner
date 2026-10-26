@@ -31,3 +31,15 @@ func (h *Handler) Routes() http.Handler {
 	mux.HandleFunc("GET /healthz", h.health)
 	return mux
 }
+
+func (h *Handler) shorten(w http.ResponseWriter, r *http.Request) {
+	ip, _, err := net.SplitHostPort(r.RemoteAddr)
+	if err != nil {
+		ip = r.RemoteAddr
+	}
+	allowed, _ := h.cache.Allow(r.Context(), ip, shortenRateLimit, time.Minute)
+	if !allowed {
+		http.Error(w, "rate limit exceeded", http.StatusTooManyRequests)
+		return
+	}
+}
