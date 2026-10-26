@@ -20,3 +20,14 @@ type Handler struct {
 func New(svc *service.Service, cache *store.Cache, pool *pgxpool.Pool, rdb *redis.Client) *Handler {
 	return &Handler{svc: svc, cache: cache, pool: pool, rdb: rdb}
 }
+
+import "net/http"
+
+func (h *Handler) Routes() http.Handler {
+	mux := http.NewServeMux()
+	mux.HandleFunc("POST /api/shorten", h.shorten)
+	mux.HandleFunc("GET /r/{code}", h.redirect)
+	mux.HandleFunc("GET /api/urls/{code}", h.stats)
+	mux.HandleFunc("GET /healthz", h.health)
+	return mux
+}
