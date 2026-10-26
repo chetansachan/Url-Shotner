@@ -103,3 +103,16 @@ func (h *Handler) stats(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(row)
 }
+
+func (h *Handler) health(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	if err := h.pool.Ping(ctx); err != nil {
+		http.Error(w, "postgres unreachable", http.StatusServiceUnavailable)
+		return
+	}
+	if err := h.rdb.Ping(ctx).Err(); err != nil {
+		http.Error(w, "redis unreachable", http.StatusServiceUnavailable)
+		return
+	}
+	w.Write([]byte("ok"))
+}
