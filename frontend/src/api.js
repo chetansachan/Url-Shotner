@@ -10,3 +10,20 @@ export async function checkHealth() {
     return { status: 'degraded', error: err.message };
   }
 }
+
+export async function shortenUrl(longUrl) {
+  const res = await fetch(`${API_BASE}/api/shorten`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ url: longUrl }),
+  });
+
+  if (!res.ok) {
+    const errorText = await res.text();
+    throw new Error(errorText || `Failed to shorten URL (status ${res.status})`);
+  }
+
+  return res.json();
+}
