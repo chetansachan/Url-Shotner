@@ -27,3 +27,18 @@ export async function shortenUrl(longUrl) {
 
   return res.json();
 }
+
+export async function getUrlStats(shortCode) {
+  const cleanCode = shortCode.trim().replace(/^.*\/r\//, '');
+  const res = await fetch(`${API_BASE}/api/urls/${encodeURIComponent(cleanCode)}`);
+
+  if (!res.ok) {
+    if (res.status === 404) {
+      throw new Error(`Short link "${cleanCode}" not found.`);
+    }
+    const errorText = await res.text();
+    throw new Error(errorText || `Failed to fetch stats (status ${res.status})`);
+  }
+
+  return res.json();
+}
