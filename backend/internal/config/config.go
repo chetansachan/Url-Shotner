@@ -1,33 +1,53 @@
 package config
 
 import (
+	"log"
 	"os"
 	"time"
+
+	"github.com/joho/godotenv"
 )
 
 type Config struct {
 	DatabaseURL   string
 	RedisAddr     string
-	FlushInterval time.Duration
 	ListenAddr    string
+	FlushInterval time.Duration
 }
 
-func Load() Config {
-	duration, err := time.ParseDuration(getEnv("FLUSH_INTERVAL", "30s"))
-	if err != nil {
-		duration = 30 * time.Second
+func Load() *Config {
+	if err := godotenv.Load(); err != nil {
+		log.Println("no .env file found, using environment variables")
 	}
-	return Config{
-		DatabaseURL:   getEnv("DATABASE_URL", "postgres://postgres:chetan156@localhost:5432/url-shotner?sslmode=disable"),
-		RedisAddr:     getEnv("REDIS_ADDR", "localhost:6379"),
-		FlushInterval: duration,
-		ListenAddr:    getEnv("LISTEN_ADDR", ":8080"),
-	}
-}
 
-func getEnv(key, fallback string) string {
-	if v := os.Getenv(key); v != "" {
-		return v
+	dbURL := os.Getenv("DATABASE_URL")
+	if dbURL == "" {
+		log.Fatal("DATABASE_URL is required")
 	}
-	return fallback
+
+	flush := 30 * time.Second
+	if v := os.Getenv("FLUSH_INTERVAL"); v != "" {
+		d, err := time.ParseDuration(v)
+		if err != nil {
+			log.Fatalf("invalid FLUSH_INTERVAL %q: %v", v, err)
+		}
+		flush = d
+	}
+
+	listen := os.Getenv("LISTEN_ADDR")
+	if listen == "" {
+		listen = ":8080"
+	}
+
+	redisAddr := os.Getenv("REDIS_ADDR")
+	if redisAddr == "" {
+		redisAddr = "localhost:6379"
+	}
+
+	return &Config{
+		DatabaseURL:   dbURL,
+		RedisAddr:     redisAddr,
+		ListenAddr:    listen,
+		FlushInterval: flush,
+	}
 }

@@ -139,3 +139,4 @@ export default function RecentLinks({ links, onSelectStats, onOpenQr, onDeleteLi
     </div>
   );
 }
+

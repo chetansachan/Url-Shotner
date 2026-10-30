@@ -1,3 +1,7 @@
+// API client for Url-Shotner backend
+
+// In dev, Vite proxies /api, /r, /healthz to http://localhost:8080.
+// If run standalone, fallback to http://localhost:8080.
 const API_BASE = import.meta.env.VITE_API_URL || '';
 
 export async function checkHealth() {
@@ -42,3 +46,4 @@ export async function getUrlStats(shortCode) {
 
   return res.json();
 }
+

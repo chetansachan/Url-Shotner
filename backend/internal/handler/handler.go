@@ -15,7 +15,7 @@ import (
 	"url-shotner/internal/store"
 )
 
-const shortenRateLimit = 10
+const shortenRateLimit = 10 // per minute per IP
 
 type Handler struct {
 	svc   *service.Service
@@ -34,6 +34,7 @@ func (h *Handler) Routes() http.Handler {
 	mux.HandleFunc("GET /r/{code}", h.redirect)
 	mux.HandleFunc("GET /api/urls/{code}", h.stats)
 	mux.HandleFunc("GET /healthz", h.health)
+
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS, PUT, DELETE")
@@ -53,7 +54,7 @@ func (h *Handler) shorten(w http.ResponseWriter, r *http.Request) {
 	}
 	allowed, err := h.cache.Allow(r.Context(), ip, shortenRateLimit, time.Minute)
 	if err != nil {
-		log.Printf("rate limiter error: %v", err)
+		log.Printf("rate limiter error: %v (allowing)", err)
 	}
 	if !allowed {
 		http.Error(w, "rate limit exceeded", http.StatusTooManyRequests)

@@ -116,3 +116,4 @@ export default function QrModal({ isOpen, onClose, url, shortCode }) {
     </div>
   );
 }
+

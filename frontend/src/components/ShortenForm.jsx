@@ -226,3 +226,4 @@ export default function ShortenForm({ onLinkCreated, onSelectStats, onOpenQr }) 
     </div>
   );
 }
+
